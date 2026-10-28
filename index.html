@@ -2927,7 +2927,9 @@
       const bw = Math.max(2, Math.round(c.width * dpr)), bh = Math.max(2, Math.round(c.height * dpr));
       rt.setSize(bw, bh);
       outlinePass.uniforms.px.value.set(1 / bw, 1 / bh);
-      outlinePass.uniforms.radius.value = 6.4 * dpr;
+      // wave and outline were tuned on a desktop-wide name; a phone-wide one gets them in proportion
+      const k = Math.min(1, nb.width / 1300);
+      outlinePass.uniforms.radius.value = Math.max(2.2, 6.4 * k) * dpr;
       cam.aspect = c.width / c.height;
       cam.updateProjectionMatrix();
       const viewH = 2 * 14 * Math.tan(THREE.MathUtils.degToRad(16));
@@ -2943,7 +2945,7 @@
         b.mesh.position.set(0, name.position.y + (l.y + mid) * scale, -0.6);
         b.mesh.scale.set(viewW + 2, bandH, 1);
         b.mat.uniforms.uSize.value.set(viewW + 2, bandH);
-        b.mat.uniforms.uAmp.value = 30 * upp;
+        b.mat.uniforms.uAmp.value = 30 * k * upp;
         b.mat.uniforms.uFreq.value = (Math.PI * 2) / (viewW / 2.2);
       });
     };
