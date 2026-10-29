@@ -3302,9 +3302,9 @@
     varying vec2 vUv;
     float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
     void main() {
-      // the mask: r = the letters with their outline, g = the glass, b = the glass inside its wall
-      vec4 m = texture2D(tMask, vUv);
-      if (m.r < 0.004) { gl_FragColor = vec4(0.0); return; }
+      // the mask: the letters, nothing round them
+      float m = texture2D(tMask, vUv).r;
+      if (m < 0.004) { gl_FragColor = vec4(0.0); return; }
       float lx = (vUv.x - uBox.x) / (uBox.z - uBox.x);
       float ly = (vUv.y - uBox.y) / (uBox.w - uBox.y);
       float t = uTime;
@@ -3331,14 +3331,10 @@
       water += 0.4 * step(0.86, br) * (1.0 - smoothstep(0.1, 0.17, length((bf + vec2((br - 0.93) * 3.0, 0.0)) * vec2(1.0, 2.2))));
       float foam = 1.0 - smoothstep(0.0, 0.035, abs(d));
       water = mix(water, vec3(0.86, 1.0, 0.97), foam * 0.85);
-      // the empty part: dark glass with two soft reflections
-      float s = fract(lx * 2.2 + ly * 0.35);
-      vec3 empty = vec3(0.10, 0.13, 0.17) + (1.0 - smoothstep(0.0, 0.045, abs(s - 0.3))) * 0.12 + (1.0 - smoothstep(0.0, 0.02, abs(s - 0.37))) * 0.08;
-      vec3 fill = mix(empty, water, wet);
-      float wall = clamp(m.g - m.b, 0.0, 1.0);
-      fill = mix(fill, vec3(0.86, 0.95, 1.0), wall * (0.6 - wet * 0.25));
-      vec3 col = mix(vec3(0.055, 0.058, 0.066), fill, m.g);
-      gl_FragColor = vec4(col * m.r, m.r);
+      // above the water the letter stays as a faint ghost of it, so the troughs don't eat the letters
+      vec3 col = mix(vec3(0.42, 0.78, 0.82), water, wet);
+      float a = m * mix(0.22, 1.0, wet);
+      gl_FragColor = vec4(col * a, a);
     }`;
 
   async function buildWater() {
@@ -3378,21 +3374,14 @@
       const font = px => { g.font = `900 ${px}px Anybody, "Hanken Grotesk", sans-serif`; try { g.fontStretch = "expanded"; } catch (e) {} };
       let fs = H * 0.8;
       font(fs);
-      fs = Math.min(fs, (fs * W * 0.88) / g.measureText(word).width);
+      fs = Math.min(fs, (fs * W * 0.92) / g.measureText(word).width);
       font(fs);
       const mw = g.measureText(word), asc = mw.actualBoundingBoxAscent, desc = mw.actualBoundingBoxDescent;
       const x = W / 2, y = H / 2 + (asc - desc) / 2;
-      g.textAlign = "center"; g.textBaseline = "alphabetic"; g.lineJoin = "round";
+      g.textAlign = "center"; g.textBaseline = "alphabetic";
       g.clearRect(0, 0, W, H);
       g.fillStyle = "#fff";
       g.fillText(word, x, y);
-      g.globalCompositeOperation = "source-atop";
-      g.strokeStyle = "#ff0"; g.lineWidth = fs * 0.07;
-      g.strokeText(word, x, y);
-      g.globalCompositeOperation = "destination-over";
-      g.strokeStyle = "#f00"; g.lineWidth = fs * 0.15;
-      g.strokeText(word, x, y);
-      g.globalCompositeOperation = "source-over";
       // a texture's storage keeps its first size: a new size needs a new one
       tex.dispose();
       tex.needsUpdate = true;
@@ -3401,7 +3390,8 @@
 
     // the water is a pair of springs: its level and its tilt toward the pointer
     const st = { level: -0.1, lv: 0, tilt: 0, tv: 0, splash: 0, goal: -0.1, goalTilt: 0, fillAt: null, over: false };
-    const REST = 0.5, HIGH = 0.66;
+    // at rest the crests touch the letters' top edge; the pointer brings it to the brim
+    const REST = 0.93, HIGH = 1.0;
     const pointAt = e => {
       const r = wrap.getBoundingClientRect(), s = stage.getBoundingClientRect();
       showBubble(WATER, e.clientX - s.left, r.top - s.top + r.height * 0.1);
