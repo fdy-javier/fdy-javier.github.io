@@ -22,7 +22,7 @@
   document.documentElement.lang = saved || found;
 </script>
 <script type="importmap">
-  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -671,7 +671,7 @@
   .craft-tools { color: var(--ink-3); font-size: .95rem; }
 
   .special { margin-top: clamp(40px, 6vw, 72px); display: grid; gap: 16px; }
-  @media (min-width: 900px) { .special { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } .cell--llm { grid-row: span 3; } }
+  @media (min-width: 900px) { .special { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } .cell--llm { grid-row: span 3; } .cell--web { grid-column: 1 / -1; } }
   .cell { border-radius: 12px 40px 12px 40px; padding: clamp(24px, 3vw, 40px); background: var(--surface); display: grid; gap: 14px; align-content: start; }
   .cell h3 { font-family: "Anybody", sans-serif; font-weight: 780; font-variation-settings: "wdth" 108; letter-spacing: -0.01em; font-size: clamp(1.6rem, 2.6vw, 2.25rem); line-height: 1.05; }
   .cell p { max-width: 52ch; }
@@ -680,7 +680,56 @@
   .cell-foot { display: flex; align-items: end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
   .cell-foot img { width: clamp(140px, 16vw, 200px); height: auto; }
   .cell--loc { background: color-mix(in srgb, var(--yellow) 16%, var(--surface)); }
-  .cell--video { justify-items: start; }
+  .cell--video, .cell--web { justify-items: start; }
+  .cell .btn-sm { justify-self: start; }
+  .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+  /* Showcase: a word filled with water and a row of ? blocks, each with an effect rebuilt from a game */
+  .showcase { padding-top: clamp(112px, 15vw, 190px); }
+  .sc-head { display: grid; gap: clamp(14px, 2vw, 22px); justify-items: center; text-align: center; }
+  .sc-title { position: relative; width: min(100%, 1080px); aspect-ratio: 6.2; display: grid; place-items: center; cursor: pointer; }
+  .sc-title-fx { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .sc-title-text { font-size: clamp(3rem, 13vw, 11rem); font-weight: 900; font-variation-settings: "wdth" 125; text-transform: uppercase; letter-spacing: 0; }
+  .sc-title.has-3d .sc-title-text { color: transparent; user-select: none; }
+  .sc-lede { max-width: 58ch; font-size: clamp(1.125rem, 1.6vw, 1.3rem); line-height: 1.5; color: var(--ink-2); text-wrap: balance; }
+  .sc-stage { position: relative; margin-top: clamp(20px, 3.5vw, 44px); }
+  .sc-blocks { width: 100%; height: var(--sc-h, 280px); touch-action: pan-y; cursor: default; }
+  .sc-blocks.is-pointing { cursor: pointer; }
+  .sc-hint { margin-top: 6px; text-align: center; color: var(--ink-3); font-size: .95rem; }
+  .sc-hint-tap { display: none; }
+  @media (hover: none) { .sc-hint-hover { display: none; } .sc-hint-tap { display: inline; } }
+  .showcase.no-3d .sc-stage, .showcase.no-3d .sc-hint { display: none; }
+  .showcase.no-3d .sc-list { display: grid; gap: 10px; max-width: 60ch; margin: 32px auto 0; padding-left: 20px; color: var(--ink-2); }
+
+  .sc-bubble {
+    --tail: 50%;
+    position: absolute; left: 0; top: 0; z-index: 3; width: max-content; max-width: min(300px, calc(100vw - 32px));
+    display: grid; gap: 6px; padding: 14px 18px 16px; border-radius: 18px;
+    background: var(--cream); color: var(--btn-ink); border: 2px solid var(--btn-ink); box-shadow: 0 5px 0 var(--btn-ink);
+    font-size: .95rem; line-height: 1.35; pointer-events: none;
+    transform-origin: var(--tail) calc(100% + 14px); opacity: 0; scale: .6; translate: 0 10px;
+    transition: opacity .14s var(--ease), scale .38s var(--ease-back), translate .38s var(--ease-back);
+  }
+  .sc-bubble.is-on { opacity: 1; scale: 1; translate: 0 0; }
+  .sc-bubble::after {
+    content: ""; position: absolute; left: var(--tail); bottom: -11px; width: 18px; height: 18px; margin-left: -9px;
+    background: var(--cream); border: 2px solid var(--btn-ink); border-top: 0; border-left: 0; border-radius: 0 0 5px 0;
+    transform: rotate(45deg); box-shadow: 4px 4px 0 -1px var(--btn-ink);
+  }
+  .sc-bubble b { font-family: "Anybody", sans-serif; font-weight: 850; font-variation-settings: "wdth" 112; font-size: 1.3rem; line-height: 1.05; }
+  .sc-bubble span { display: block; }
+  .sc-bubble i { display: block; font-style: normal; font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #6b6f78; }
+  :lang(zh) .sc-bubble i, :lang(ja) .sc-bubble i { letter-spacing: 0; }
+
+  /* How I work, under contact */
+  .work { display: grid; gap: 18px; margin-block: clamp(16px, 3vw, 32px); }
+  .work-title { font-family: "Anybody", sans-serif; font-weight: 780; font-variation-settings: "wdth" 108; font-size: clamp(1.4rem, 2.2vw, 1.9rem); }
+  .work-grid { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+  @media (min-width: 820px) { .work-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .work-cell { display: grid; gap: 10px; align-content: start; padding: clamp(22px, 2.6vw, 32px); border-radius: 12px 40px 12px 40px; background: var(--surface); }
+  .work-cell b { font-size: clamp(2.4rem, 4.6vw, 3.6rem); color: var(--yellow); font-variation-settings: "wdth" 118; }
+  .work-cell p { color: var(--ink-2); max-width: 34ch; }
+  .work-note { color: var(--ink-3); font-size: 1.0625rem; }
 
   /* About */
   .about { padding-top: clamp(112px, 15vw, 190px); display: grid; gap: 40px; }
@@ -767,7 +816,7 @@
   <div class="wrap nav-inner">
     <a class="nav-name" href="#top"><span class="full">Javier Sandoval</span><span class="short">JS</span></a>
     <nav class="nav-links" aria-label="Main">
-      <a href="#games" data-i18n="nav.games">Games</a>
+      <a href="#games" data-i18n="nav.games">Projects</a>
       <a href="#craft" data-i18n="nav.craft">What I do</a>
       <a href="#about" data-i18n="nav.about">About</a>
       <a href="#contact" data-i18n="nav.contact">Contact</a>
@@ -806,7 +855,7 @@
           <a class="btn btn-primary btn-lg magnetic" href="#games">
             <span class="btn-burst" aria-hidden="true"><svg><use href="#burst"/></svg></span>
             <span class="btn-shine" aria-hidden="true"></span>
-            <span data-i18n="hero.cta">See the games</span>
+            <span data-i18n="hero.cta">See my projects</span>
             <span class="btn-ico" aria-hidden="true"><svg><use href="#ph-down"/></svg></span>
           </a>
           <a class="btn btn-lg magnetic" href="#contact">
@@ -867,8 +916,8 @@
 
   <section id="games" aria-labelledby="games-title">
     <div class="wrap games-head">
-      <h2 class="display section-title" id="games-title" data-i18n="games.title" data-reveal>Games</h2>
-      <p class="games-sub" data-i18n="games.sub" data-reveal style="--d:1">Personal projects.</p>
+      <h2 class="display section-title" id="games-title" data-i18n="games.title" data-reveal>Personal projects</h2>
+      <p class="games-sub" data-i18n="games.sub" data-reveal style="--d:1">Games I make on my own: I write, design and direct them.</p>
     </div>
 
     <!-- Mario Maker 3D World -->
@@ -889,7 +938,7 @@
           <dl class="facts facts--2 facts--small" data-reveal style="--d:3">
             <div><dt data-i18n="fact.states">Player states matched so far</dt><dd>58/96</dd></div>
           </dl>
-          <p class="world-note" data-i18n="mario.note" data-reveal style="--d:4">Non-commercial fan project. Not affiliated with Nintendo.</p>
+          <p class="world-note" data-i18n="mario.note" data-reveal style="--d:4">Non-commercial fan project, not affiliated with Nintendo. It can't be made public because it uses Nintendo's assets.</p>
           <div class="world-actions" data-reveal style="--d:5">
             <a class="btn btn-primary btn-lg magnetic" href="#contact">
               <span class="btn-burst" aria-hidden="true"><svg><use href="#burst"/></svg></span>
@@ -1091,6 +1140,7 @@
             <div><dt data-i18n="fact.lines">Lines of Rust</dt><dd>380k<span class="plus">+</span></dd></div>
             <div><dt data-i18n="fact.tests">Automated tests</dt><dd data-i18n="fact.tests.value">1,483</dd></div>
           </dl>
+          <p class="world-note" data-i18n="mc.note" data-reveal style="--d:4">It can't be made public because it uses Minecraft's assets. Not affiliated with Mojang or Microsoft.</p>
           <div class="world-actions" data-reveal style="--d:5">
             <a class="btn btn-primary btn-lg magnetic" href="#contact">
               <span class="btn-burst" aria-hidden="true"><svg><use href="#burst"/></svg></span>
@@ -1203,6 +1253,22 @@
     </div>
   </section>
 
+  <section class="showcase wrap" id="showcase" aria-labelledby="showcase-title">
+    <div class="sc-head">
+      <div class="sc-title" data-reveal>
+        <canvas class="sc-title-fx" aria-hidden="true"></canvas>
+        <h2 class="display sc-title-text" id="showcase-title">Showcase</h2>
+      </div>
+      <p class="sc-lede" data-i18n="sc.lede" data-reveal style="--d:1">Love an effect, a shader or a system from some game? Tell me which one. I'll decompile it, extract it and rebuild it so it works in your project. A few I've already rebuilt:</p>
+    </div>
+    <div class="sc-stage" data-reveal style="--d:2">
+      <canvas class="sc-blocks" aria-hidden="true"></canvas>
+      <div class="sc-bubble" role="status" aria-live="polite"></div>
+    </div>
+    <p class="sc-hint" data-reveal style="--d:3"><span class="sc-hint-hover" data-i18n="sc.hint.hover">Hover a block to see where its effect comes from.</span><span class="sc-hint-tap" data-i18n="sc.hint.tap">Tap a block to see where its effect comes from.</span></p>
+    <ul class="sr-only sc-list"></ul>
+  </section>
+
   <section class="craft wrap" id="craft" aria-labelledby="craft-title">
     <h2 class="display section-title" id="craft-title" data-i18n="craft.title" data-reveal>What I do</h2>
     <div class="craft-rows">
@@ -1248,6 +1314,7 @@
         <h3 data-i18n="re.title">Reverse engineering</h3>
         <p data-i18n="re.text">Love how a shader, camera or movement system feels in a shipped game? I take it apart through decompiled code, disassembly and its generated shaders, then rebuild it for your engine.</p>
         <p class="craft-tools" data-i18n="re.tools">Ghidra, Java decompilers, UndertaleModTool</p>
+        <a class="btn btn-sm" href="#showcase"><span data-i18n="re.link">See examples</span></a>
       </div>
       <div class="cell cell--loc" data-reveal style="--d:2">
         <h3 data-i18n="loc.title">Spanish localization</h3>
@@ -1257,6 +1324,11 @@
         <h3 data-i18n="video.title">Video editing</h3>
         <p data-i18n="video.text">I edited every trailer of my games on Steam, from capturing the gameplay to cutting it to the music.</p>
         <a class="btn btn-sm" href="https://www.youtube.com/watch?v=YY0RGUSbzAU" target="_blank" rel="noopener"><span data-i18n="video.link">Watch the Blakjalatro trailer</span></a>
+      </div>
+      <div class="cell cell--web" data-reveal style="--d:4">
+        <h3 data-i18n="web.title">Web design and development</h3>
+        <p data-i18n="web.text">I design and code websites like the one you're looking at: 3D with three.js, shaders, animation and four languages.</p>
+        <p class="craft-tools">HTML, CSS, JavaScript, three.js, GLSL</p>
       </div>
     </div>
   </section>
@@ -1274,6 +1346,15 @@
   <section class="contact wrap" id="contact" aria-labelledby="contact-title">
     <h2 class="display section-title" id="contact-title" data-i18n="nav.contact" data-reveal>Contact</h2>
     <p class="contact-text" data-i18n="contact.text" data-reveal style="--d:1">Open to full-time roles, contracts and collaborations.</p>
+    <div class="work" aria-labelledby="work-title">
+      <h3 class="work-title" id="work-title" data-i18n="work.title" data-reveal>How I work</h3>
+      <ul class="work-grid">
+        <li class="work-cell" data-reveal style="--d:1"><b class="display" data-i18n="work.1.big">7 days</b><p data-i18n="work.1.text">Weekends and holidays included, when the project needs it.</p></li>
+        <li class="work-cell" data-reveal style="--d:2"><b class="display" data-i18n="work.2.big">Daily</b><p data-i18n="work.2.text">A progress report every day: what I finished, what's next and anything blocking me.</p></li>
+        <li class="work-cell" data-reveal style="--d:3"><b class="display" data-i18n="work.3.big">Remote</b><p data-i18n="work.3.text">From Mexico, on your team's hours.</p></li>
+      </ul>
+      <p class="work-note" data-i18n="work.note" data-reveal style="--d:4">Making games is what I'd be doing on my days off anyway.</p>
+    </div>
     <a class="contact-mail display" href="mailto:fdy.javier@gmail.com" data-reveal style="--d:2">fdy.javier@gmail.com</a>
     <ul class="contact-links" data-reveal style="--d:3">
       <li><a class="btn btn-sm" href="https://wa.me/526692640427" target="_blank" rel="noopener">WhatsApp +52 669 264 0427</a></li>
@@ -1363,7 +1444,7 @@
     "tag.steam": "YA EN STEAM · YA EN STEAM · ",
     "tag.soon": "MUY PRONTO · MUY PRONTO · ",
     "tag.private": "PROYECTO PRIVADO · PROYECTO PRIVADO · ",
-    "nav.games": "Juegos",
+    "nav.games": "Proyectos",
     "nav.craft": "Lo que hago",
     "nav.about": "Sobre mí",
     "nav.contact": "Contacto",
@@ -1375,9 +1456,9 @@
     "video.text": "Edité todos los tráileres de mis juegos en Steam, desde grabar el gameplay hasta cortarlo al ritmo de la música.",
     "video.link": "Ver el tráiler de Blakjalatro",
     "hero.lede": "Llevo juegos de la primera idea hasta su lanzamiento en Steam: código, diseño de sistemas y dirección.",
-    "hero.cta": "Ver los juegos",
-    "games.title": "Juegos",
-    "games.sub": "Proyectos propios.",
+    "hero.cta": "Ver mis proyectos",
+    "games.title": "Proyectos personales",
+    "games.sub": "Juegos que hago por mi cuenta: los programo, los diseño y los dirijo.",
     "steam": "Página de Steam",
     "more": "Acerca del proyecto",
     "tip.steam": "Ver la página de Steam",
@@ -1412,7 +1493,7 @@
     "mario.status": "Proyecto de fan",
     "mario.desc": "Un creador de niveles con las piezas de Super Mario 3D World: Mario jugable, editor de cursos en 3D y multijugador local con corona para el ganador. El movimiento, la cámara y las animaciones calcan al original, estado por estado.",
     "fact.states": "Estados del jugador ya calcados",
-    "mario.note": "Proyecto de fan sin fines comerciales. Sin relación con Nintendo.",
+    "mario.note": "Proyecto de fan sin fines comerciales y sin relación con Nintendo. No se puede hacer público porque usa assets de Nintendo.",
     "private.text": "Todo, menos Blakjalatro, es privado por ahora. Si alguno de estos juegos les interesa, se los puedo mostrar a fondo en una demo en vivo o con una build privada.",
     "private.cta": "Pedir una demo",
     "craft.title": "Lo que hago",
@@ -1435,6 +1516,41 @@
     "about.text": "Soy Javier Sandoval. Hago juegos casi siempre solo, así que cubro todo el proceso: escribo el código, diseño las reglas, dirijo el arte y saco la build.",
     "contact.text": "Abierto a puestos de tiempo completo, contratos y colaboraciones.",
     "contact.resume": "CV (PDF)",
+    "mc.note": "No se puede hacer público porque usa assets de Minecraft. Sin relación con Mojang ni Microsoft.",
+    "re.link": "Ver ejemplos",
+    "web.title": "Diseño y desarrollo web",
+    "web.text": "Diseño y programo páginas web como esta que están viendo: 3D con three.js, shaders, animación y cuatro idiomas.",
+    "sc.lede": "¿Les gustó un efecto, un shader o un sistema de algún juego? Díganme cuál. Lo descompilo, lo extraigo y lo reconstruyo para que lo puedan usar en su proyecto. Estos son algunos que ya reconstruí:",
+    "sc.hint.hover": "Pasa el mouse sobre un bloque para ver de dónde viene su efecto.",
+    "sc.hint.tap": "Toca un bloque para ver de dónde viene su efecto.",
+    "sc.based": "Basado en",
+    "sc.where": "Reconstruido en",
+    "sc.page": "Esta página",
+    "sc.hidden.name": "Invisibilidad",
+    "sc.hidden.base": "Los bloques ocultos de Super Mario Maker, como los muestra el editor",
+    "sc.hidden.where": "Mi editor de Mario Maker 3D World",
+    "sc.foil.name": "Laminado",
+    "sc.foil.base": "La edición Laminada de Balatro",
+    "sc.holo.name": "Holográfico",
+    "sc.holo.base": "La edición Holográfica de Balatro",
+    "sc.poly.name": "Policromo",
+    "sc.poly.base": "La edición Policromada de Balatro",
+    "sc.glitch.name": "Glitch",
+    "sc.glitch.base": "Idea mía: una señal rota que se desgarra y separa el RGB",
+    "sc.metal.name": "Metal",
+    "sc.metal.base": "Metal Mario en Mario Kart 8",
+    "sc.glass.name": "Vidrio líquido",
+    "sc.glass.base": "El cubo del arranque de GameCube",
+    "sc.water.name": "Letras de agua",
+    "sc.water.base": "El cartel con el nombre del lugar en Pokémon Ultrasol y Ultraluna",
+    "work.title": "Cómo trabajo",
+    "work.1.big": "7 días",
+    "work.1.text": "Fines de semana y días festivos incluidos, cuando el proyecto lo necesite.",
+    "work.2.big": "Diario",
+    "work.2.text": "Un reporte de avance cada día: lo que terminé, lo que sigue y lo que me tenga atorado.",
+    "work.3.big": "Remoto",
+    "work.3.text": "Desde México, en el horario de su equipo.",
+    "work.note": "Al final, hacer juegos es lo que haría en mis días libres de todos modos.",
   };
 
   const ZH = {
@@ -1453,7 +1569,7 @@
     "tag.steam": "已在 STEAM 上架 · 已在 STEAM 上架 · ",
     "tag.soon": "即将推出 · 即将推出 · 即将推出 · ",
     "tag.private": "私人项目 · 私人项目 · 私人项目 · ",
-    "nav.games": "游戏",
+    "nav.games": "项目",
     "nav.craft": "我做什么",
     "nav.about": "关于我",
     "nav.contact": "联系",
@@ -1465,9 +1581,9 @@
     "video.text": "我在 Steam 上所有游戏的预告片都是我自己剪辑的，从录制游戏画面到配合音乐剪辑。",
     "video.link": "观看 Blakjalatro 预告片",
     "hero.lede": "我把游戏从最初的想法一路做到 Steam 发售：编程、系统设计和项目指导。",
-    "hero.cta": "查看游戏",
-    "games.title": "游戏",
-    "games.sub": "个人项目。",
+    "hero.cta": "查看我的项目",
+    "games.title": "个人项目",
+    "games.sub": "我独立制作的游戏：编程、设计和导演都由我负责。",
     "steam": "Steam 商店页面",
     "more": "了解项目",
     "tip.steam": "查看 Steam 页面",
@@ -1502,7 +1618,7 @@
     "mario.status": "粉丝项目",
     "mario.desc": "用《超级马力欧 3D 世界》的素材做成的关卡制作器：可操作的马力欧、3D 关卡编辑器，以及为胜者戴上王冠的本地多人模式。移动、镜头和动画逐个状态还原原作。",
     "fact.states": "已还原的玩家状态",
-    "mario.note": "非商业粉丝项目，与任天堂无关。",
+    "mario.note": "非商业粉丝项目，与任天堂无关。因为使用了任天堂的素材，所以无法公开。",
     "private.text": "除了 Blakjalatro，其他作品目前都还未公开。如果你对其中某款游戏感兴趣，我可以通过在线演示或私人测试版详细展示。",
     "private.cta": "申请演示",
     "craft.title": "我做什么",
@@ -1525,6 +1641,41 @@
     "about.text": "我是 Javier Sandoval。我大多独自做游戏，所以覆盖整个流程：写代码、设计规则、指导美术并发布版本。",
     "contact.text": "欢迎全职职位、合同工作和合作机会。",
     "contact.resume": "简历（PDF）",
+    "mc.note": "因为使用了《我的世界》的素材，所以无法公开。与 Mojang 和微软无关。",
+    "re.link": "查看示例",
+    "web.title": "网页设计与开发",
+    "web.text": "我设计并编写网站，就像你正在看的这个：three.js 3D、着色器、动画和四种语言。",
+    "sc.lede": "喜欢某款游戏里的某个效果、着色器或系统？告诉我是哪一个。我会把它反编译、提取出来，再重建成你的项目能直接用的版本。下面是我已经重建过的几个：",
+    "sc.hint.hover": "把鼠标移到方块上，看看它的效果来自哪里。",
+    "sc.hint.tap": "点一下方块，看看它的效果来自哪里。",
+    "sc.based": "参考",
+    "sc.where": "重制于",
+    "sc.page": "这个网页",
+    "sc.hidden.name": "隐形",
+    "sc.hidden.base": "《超级马力欧创作家》编辑器里显示的隐藏砖块",
+    "sc.hidden.where": "我的 Mario Maker 3D World 编辑器",
+    "sc.foil.name": "闪箔",
+    "sc.foil.base": "《小丑牌》的闪箔版本",
+    "sc.holo.name": "镭射",
+    "sc.holo.base": "《小丑牌》的镭射版本",
+    "sc.poly.name": "多彩",
+    "sc.poly.base": "《小丑牌》的多彩版本",
+    "sc.glitch.name": "故障",
+    "sc.glitch.base": "原创：信号撕裂和 RGB 分离",
+    "sc.metal.name": "金属",
+    "sc.metal.base": "《马力欧卡丁车8》里的金属马力欧",
+    "sc.glass.name": "液态玻璃",
+    "sc.glass.base": "GameCube 开机画面的方块",
+    "sc.water.name": "水之字",
+    "sc.water.base": "《精灵宝可梦 究极之日／究极之月》的地名牌",
+    "work.title": "我的工作方式",
+    "work.1.big": "每周 7 天",
+    "work.1.text": "项目需要时，周末和节假日也可以工作。",
+    "work.2.big": "每日",
+    "work.2.text": "每天发送进度报告：完成了什么、接下来做什么、遇到了什么阻碍。",
+    "work.3.big": "远程",
+    "work.3.text": "人在墨西哥，按你团队的时间工作。",
+    "work.note": "反正做游戏本来就是我休息日会做的事。",
   };
 
   const JA = {
@@ -1543,7 +1694,7 @@
     "tag.steam": "STEAMで発売中 · STEAMで発売中 · ",
     "tag.soon": "近日公開 · 近日公開 · 近日公開 · ",
     "tag.private": "非公開プロジェクト · 非公開プロジェクト · ",
-    "nav.games": "ゲーム",
+    "nav.games": "プロジェクト",
     "nav.craft": "できること",
     "nav.about": "自己紹介",
     "nav.contact": "連絡先",
@@ -1555,9 +1706,9 @@
     "video.text": "Steamに出した自作ゲームの予告編はすべて自分で編集しました。ゲームプレイの録画から、音楽に合わせたカットまで。",
     "video.link": "Blakjalatroの予告編を見る",
     "hero.lede": "アイデアの段階からSteamでの発売まで、プログラミング、システムデザイン、ディレクションを一貫して手がけます。",
-    "hero.cta": "ゲームを見る",
-    "games.title": "ゲーム",
-    "games.sub": "個人プロジェクト。",
+    "hero.cta": "プロジェクトを見る",
+    "games.title": "個人プロジェクト",
+    "games.sub": "自分で作っているゲームです。プログラム、デザイン、ディレクションをすべて担当しています。",
     "steam": "Steamストアページ",
     "more": "プロジェクトについて",
     "tip.steam": "Steamページを見る",
@@ -1592,7 +1743,7 @@
     "mario.status": "ファンプロジェクト",
     "mario.desc": "『スーパーマリオ 3Dワールド』の素材で作ったレベルメーカー：操作できるマリオ、3Dコースエディター、勝者に王冠が乗るローカルマルチプレイ。移動、カメラ、アニメーションを状態ごとに原作どおり再現しています。",
     "fact.states": "再現済みのプレイヤー状態",
-    "mario.note": "非営利のファンプロジェクトです。任天堂とは関係ありません。",
+    "mario.note": "非営利のファンプロジェクトで、任天堂とは関係ありません。任天堂の素材を使っているため、公開できません。",
     "private.text": "Blakjalatro以外はまだ非公開です。気になるゲームがあれば、ライブデモや非公開ビルドで詳しくお見せします。",
     "private.cta": "デモを依頼する",
     "craft.title": "できること",
@@ -1615,6 +1766,41 @@
     "about.text": "Javier Sandovalです。ほとんど一人でゲームを作っているので、全工程を担当します：コードを書き、ルールを設計し、アートを指揮し、ビルドを出します。",
     "contact.text": "正社員、契約、コラボレーションのご相談をお待ちしています。",
     "contact.resume": "履歴書（PDF）",
+    "mc.note": "Minecraftの素材を使っているため、公開できません。MojangおよびMicrosoftとは関係ありません。",
+    "re.link": "例を見る",
+    "web.title": "Webデザインと開発",
+    "web.text": "今ご覧のようなWebサイトをデザインしてコーディングします。three.jsの3D、シェーダー、アニメーション、4か国語対応まで。",
+    "sc.lede": "どこかのゲームのエフェクト、シェーダー、システムが気に入りましたか？どれか教えてください。逆コンパイルして取り出し、あなたのプロジェクトで使える形に作り直します。これまでに作り直したものをいくつか紹介します。",
+    "sc.hint.hover": "ブロックにカーソルを合わせると、エフェクトの元ネタが見られます。",
+    "sc.hint.tap": "ブロックをタップすると、エフェクトの元ネタが見られます。",
+    "sc.based": "元ネタ",
+    "sc.where": "再現先",
+    "sc.page": "このページ",
+    "sc.hidden.name": "透明",
+    "sc.hidden.base": "スーパーマリオメーカーのエディターで見える隠しブロック",
+    "sc.hidden.where": "自作のMario Maker 3D Worldエディター",
+    "sc.foil.name": "ホイル",
+    "sc.foil.base": "Balatroのホイル エディション",
+    "sc.holo.name": "ホログラフィック",
+    "sc.holo.base": "Balatroのホログラフィック エディション",
+    "sc.poly.name": "ポリクローム",
+    "sc.poly.base": "Balatroのポリクローム エディション",
+    "sc.glitch.name": "グリッチ",
+    "sc.glitch.base": "オリジナル：信号の乱れとRGBのずれ",
+    "sc.metal.name": "メタル",
+    "sc.metal.base": "マリオカート8のメタルマリオ",
+    "sc.glass.name": "リキッドガラス",
+    "sc.glass.base": "ゲームキューブ起動画面のキューブ",
+    "sc.water.name": "水の文字",
+    "sc.water.base": "ポケットモンスター ウルトラサン・ウルトラムーンの地名表示",
+    "work.title": "働き方",
+    "work.1.big": "週7日",
+    "work.1.text": "必要なときは週末や祝日も対応します。",
+    "work.2.big": "毎日",
+    "work.2.text": "毎日進捗を報告します。終わったこと、次にやること、詰まっていることまで。",
+    "work.3.big": "リモート",
+    "work.3.text": "メキシコから、チームの勤務時間に合わせて働きます。",
+    "work.note": "どうせ休みの日もゲームを作っているので。",
   };
 
   const DICTS = { es: ES, zh: ZH, ja: JA };
@@ -2051,7 +2237,10 @@
   (function scrolling() {
     const hero = document.querySelector(".hero");
     const heroLayers = hero ? [hero.querySelector(".hero-fx"), hero.querySelector(".hero-stage")] : [];
-    const drift = [...document.querySelectorAll(".world-copy > :first-child, .section-title")].map(el => ({ el, k: 0.1 }))
+    // section titles drift round their own spot: their sections can be thousands of px tall on a phone,
+    // and the section's centre would push them onto what comes before
+    const drift = [...document.querySelectorAll(".world-copy > :first-child")].map(el => ({ el, k: 0.1 }))
+      .concat([...document.querySelectorAll(".section-title")].map(el => ({ el, k: 0.1, self: true, cur: 0 })))
       .concat([...document.querySelectorAll(".world-media")].map(el => ({ el, k: -0.07 })));
     const grow = [...document.querySelectorAll(".world .screen")];
     let lastY = -1;
@@ -2068,6 +2257,13 @@
         });
       }
       for (const d of drift) {
+        if (d.self) {
+          const r = d.el.getBoundingClientRect(), top = r.top - d.cur;
+          if (top + r.height < -200 || top > vh + 200) continue;
+          d.cur = -(top + r.height / 2 - vh / 2) * d.k;
+          d.el.style.translate = `0 ${d.cur.toFixed(1)}px`;
+          continue;
+        }
         const r = d.el.parentElement.getBoundingClientRect();
         if (r.bottom < -200 || r.top > vh + 200) continue;
         d.el.style.translate = `0 ${(-(r.top + r.height / 2 - vh / 2) * d.k).toFixed(1)}px`;
@@ -3038,6 +3234,442 @@
   };
   boot(document.querySelector(".mm-logo"), buildMario, el => el.classList.add("no-3d"));
   boot(document.querySelector(".hero"), buildHero, el => el.classList.remove("has-3d"));
+</script>
+<script type="module">
+  // Showcase: a word that holds water and a row of ? blocks, each wearing an effect rebuilt from a game.
+  // Pointing at one tells where its effect comes from.
+  const section = document.getElementById("showcase");
+  const stage = section.querySelector(".sc-stage");
+  const bubble = section.querySelector(".sc-bubble");
+  const tr = (key, base) => (key && window.i18nText && window.i18nText(key)) || base;
+  const easeOutBack = x => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+  const easeOutCubic = x => 1 - Math.pow(1 - x, 3);
+  const clamp01 = x => Math.max(0, Math.min(1, x));
+
+  // the order is the shader's uMode
+  const BLOCKS = [
+    { id: "hidden", name: "Invisibility", base: "Super Mario Maker's hidden blocks, as the editor shows them", where: ["sc.hidden.where", "My Mario Maker 3D World editor"] },
+    { id: "foil", name: "Foil", base: "Balatro's Foil edition", where: [null, "Blakjalatro"] },
+    { id: "holo", name: "Holographic", base: "Balatro's Holographic edition", where: [null, "Blakjalatro"] },
+    { id: "poly", name: "Polychrome", base: "Balatro's Polychrome edition", where: [null, "Blakjalatro"] },
+    { id: "glitch", name: "Glitch", base: "My own: a broken signal that tears and splits its RGB", where: [null, "Blakjalatro"] },
+    { id: "metal", name: "Metal", base: "Metal Mario in Mario Kart 8", where: ["sc.page", "This page"] },
+    { id: "glass", name: "Liquid glass", base: "The GameCube boot cube", where: [null, "Blakjalatro"] },
+  ];
+  const WATER = { id: "water", name: "Water letters", base: "The place-name banner in Pokémon Ultra Sun and Ultra Moon", where: ["sc.page", "This page"] };
+  const info = b => ({ name: tr(`sc.${b.id}.name`, b.name), base: tr(`sc.${b.id}.base`, b.base), where: tr(b.where[0], b.where[1]) });
+
+  // the speech bubble: x, y is where its tail points, in the stage's coordinates
+  let bubbleFor = null;
+  const bubbleHTML = b => { const i = info(b); return `<b>${i.name}</b><span><i>${tr("sc.based", "Based on")}</i>${i.base}</span><span><i>${tr("sc.where", "Rebuilt in")}</i>${i.where}</span>`; };
+  function showBubble(b, x, y) {
+    if (bubbleFor !== b) { bubble.innerHTML = bubbleHTML(b); bubbleFor = b; }
+    const w = bubble.offsetWidth, h = bubble.offsetHeight, sw = stage.clientWidth;
+    const left = Math.max(0, Math.min(sw - w, x - w / 2));
+    bubble.style.left = left.toFixed(1) + "px";
+    bubble.style.top = (y - h - 16).toFixed(1) + "px";
+    bubble.style.setProperty("--tail", Math.max(24, Math.min(w - 24, x - left)).toFixed(1) + "px");
+    bubble.classList.add("is-on");
+  }
+  const hideBubble = b => { if (!b || bubbleFor === b) bubble.classList.remove("is-on"); };
+
+  const list = section.querySelector(".sc-list");
+  const fillList = () => {
+    list.innerHTML = [WATER, ...BLOCKS].map(b => { const i = info(b); return `<li>${i.name}. ${tr("sc.based", "Based on")}: ${i.base}. ${tr("sc.where", "Rebuilt in")}: ${i.where}.</li>`; }).join("");
+  };
+  fillList();
+  document.addEventListener("langchange", () => { if (bubbleFor) bubble.innerHTML = bubbleHTML(bubbleFor); fillList(); });
+
+  // runs frame() only while el is on screen; onSeen once, when most of it has come in
+  function whileVisible(el, frame, onSeen) {
+    let on = false, vis = false, seen = false, raf = 0;
+    const tick = now => { frame(now); if (on) raf = requestAnimationFrame(tick); };
+    const set = () => {
+      const want = vis && !document.hidden;
+      if (want && !on) { on = true; raf = requestAnimationFrame(tick); } else if (!want && on) { on = false; cancelAnimationFrame(raf); }
+    };
+    new IntersectionObserver(es => es.forEach(e => {
+      vis = e.isIntersecting;
+      if (vis && !seen && e.intersectionRatio > 0.35) { seen = true; onSeen(); }
+      set();
+    }), { threshold: [0, 0.35, 0.7] }).observe(el);
+    document.addEventListener("visibilitychange", set);
+  }
+
+  // ---- the water word (after Ultra Sun's place-name banner: teal-to-blue water with waves sliding across) ----
+  const WATER_FRAG = `
+    uniform sampler2D tMask; uniform float uTime; uniform float uLevel; uniform float uTilt; uniform float uSplash; uniform vec4 uBox;
+    varying vec2 vUv;
+    float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    void main() {
+      // the mask: r = the letters with their outline, g = the glass, b = the glass inside its wall
+      vec4 m = texture2D(tMask, vUv);
+      if (m.r < 0.004) { gl_FragColor = vec4(0.0); return; }
+      float lx = (vUv.x - uBox.x) / (uBox.z - uBox.x);
+      float ly = (vUv.y - uBox.y) / (uBox.w - uBox.y);
+      float t = uTime;
+      float surf = uLevel + uTilt * (lx - 0.5)
+        + (0.022 + uSplash * 0.08) * sin(lx * 9.0 + t * 1.7)
+        + (0.014 + uSplash * 0.05) * sin(lx * 23.0 - t * 2.6)
+        + 0.007 * sin(lx * 41.0 + t * 3.9);
+      float d = ly - surf;
+      float aa = fwidth(ly) * 1.2;
+      float wet = 1.0 - smoothstep(-aa, aa, d);
+      float depth = clamp(-d / max(surf + 0.1, 0.25), 0.0, 1.0);
+      vec3 water = mix(vec3(0.30, 0.93, 0.78), vec3(0.10, 0.40, 0.88), smoothstep(0.0, 0.6, depth));
+      water = mix(water, vec3(0.06, 0.17, 0.55), smoothstep(0.6, 1.0, depth) * 0.75);
+      // the banner's bands: wavy stripes drifting sideways
+      float band = sin((ly * 6.0 + sin(lx * 6.0 + t * 1.1) * 0.35 + sin(lx * 13.0 - t * 0.8) * 0.12) * 6.2832 - t * 0.7);
+      water += vec3(0.30, 0.62, 0.62) * smoothstep(0.55, 1.0, band) * 0.3;
+      water -= vec3(0.03, 0.05, 0.08) * (1.0 - smoothstep(-0.9, 0.1, band));
+      // glints near the top and bubbles on their way up
+      float glint = smoothstep(0.9, 1.0, sin(lx * 46.0 + sin(ly * 11.0 + t) * 2.0) * sin(ly * 19.0 - t * 1.4));
+      water += glint * 0.32 * (1.0 - depth);
+      vec2 bc = vec2(lx * 60.0, ly * 7.0 - t * 0.9);
+      vec2 bf = fract(bc) - 0.5;
+      float br = hash(floor(bc));
+      water += 0.4 * step(0.86, br) * (1.0 - smoothstep(0.1, 0.17, length((bf + vec2((br - 0.93) * 3.0, 0.0)) * vec2(1.0, 2.2))));
+      float foam = 1.0 - smoothstep(0.0, 0.035, abs(d));
+      water = mix(water, vec3(0.86, 1.0, 0.97), foam * 0.85);
+      // the empty part: dark glass with two soft reflections
+      float s = fract(lx * 2.2 + ly * 0.35);
+      vec3 empty = vec3(0.10, 0.13, 0.17) + (1.0 - smoothstep(0.0, 0.045, abs(s - 0.3))) * 0.12 + (1.0 - smoothstep(0.0, 0.02, abs(s - 0.37))) * 0.08;
+      vec3 fill = mix(empty, water, wet);
+      float wall = clamp(m.g - m.b, 0.0, 1.0);
+      fill = mix(fill, vec3(0.86, 0.95, 1.0), wall * (0.6 - wet * 0.25));
+      vec3 col = mix(vec3(0.055, 0.058, 0.066), fill, m.g);
+      gl_FragColor = vec4(col * m.r, m.r);
+    }`;
+
+  async function buildWater() {
+    const THREE = await import("three");
+    const wrap = section.querySelector(".sc-title");
+    const canvas = wrap.querySelector(".sc-title-fx");
+    const word = wrap.querySelector(".sc-title-text").textContent.trim().toUpperCase();
+    try { await document.fonts.load('900 100px "Anybody"'); } catch (e) {}
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: "low-power" });
+    renderer.setClearColor(0x000000, 0);
+    const mask = document.createElement("canvas");
+    const tex = new THREE.CanvasTexture(mask);
+    tex.minFilter = THREE.LinearFilter;
+    tex.generateMipmaps = false;
+    const u = { tMask: { value: tex }, uTime: { value: 0 }, uLevel: { value: -0.1 }, uTilt: { value: 0 }, uSplash: { value: 0 }, uBox: { value: new THREE.Vector4(0, 0, 1, 1) } };
+    const mat = new THREE.ShaderMaterial({
+      uniforms: u, extensions: { derivatives: true }, depthTest: false, depthWrite: false, transparent: true,
+      blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor, blendSrcAlpha: THREE.OneFactor, blendDstAlpha: THREE.OneMinusSrcAlphaFactor,
+      vertexShader: "varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
+      fragmentShader: WATER_FRAG,
+    });
+    const scene = new THREE.Scene(), cam = new THREE.Camera();
+    const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+    quad.frustumCulled = false;
+    scene.add(quad);
+
+    let size = "";
+    function draw() {
+      const r = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const W = Math.max(2, Math.round(r.width * dpr)), H = Math.max(2, Math.round(r.height * dpr));
+      if (`${W}x${H}` === size) return;
+      size = `${W}x${H}`;
+      renderer.setPixelRatio(1);
+      renderer.setSize(W, H, false);
+      mask.width = W; mask.height = H;
+      const g = mask.getContext("2d");
+      const font = px => { g.font = `900 ${px}px Anybody, "Hanken Grotesk", sans-serif`; try { g.fontStretch = "expanded"; } catch (e) {} };
+      let fs = H * 0.8;
+      font(fs);
+      fs = Math.min(fs, (fs * W * 0.88) / g.measureText(word).width);
+      font(fs);
+      const mw = g.measureText(word), asc = mw.actualBoundingBoxAscent, desc = mw.actualBoundingBoxDescent;
+      const x = W / 2, y = H / 2 + (asc - desc) / 2;
+      g.textAlign = "center"; g.textBaseline = "alphabetic"; g.lineJoin = "round";
+      g.clearRect(0, 0, W, H);
+      g.fillStyle = "#fff";
+      g.fillText(word, x, y);
+      g.globalCompositeOperation = "source-atop";
+      g.strokeStyle = "#ff0"; g.lineWidth = fs * 0.07;
+      g.strokeText(word, x, y);
+      g.globalCompositeOperation = "destination-over";
+      g.strokeStyle = "#f00"; g.lineWidth = fs * 0.15;
+      g.strokeText(word, x, y);
+      g.globalCompositeOperation = "source-over";
+      // a texture's storage keeps its first size: a new size needs a new one
+      tex.dispose();
+      tex.needsUpdate = true;
+      u.uBox.value.set((x - mw.width / 2) / W, 1 - (y + desc) / H, (x + mw.width / 2) / W, 1 - (y - asc) / H);
+    }
+
+    // the water is a pair of springs: its level and its tilt toward the pointer
+    const st = { level: -0.1, lv: 0, tilt: 0, tv: 0, splash: 0, goal: -0.1, goalTilt: 0, fillAt: null, over: false };
+    const REST = 0.5, HIGH = 0.66;
+    const pointAt = e => {
+      const r = wrap.getBoundingClientRect(), s = stage.getBoundingClientRect();
+      showBubble(WATER, e.clientX - s.left, r.top - s.top + r.height * 0.1);
+    };
+    wrap.addEventListener("pointerenter", e => { if (e.pointerType !== "mouse") return; st.over = true; pointAt(e); });
+    wrap.addEventListener("pointermove", e => {
+      const r = wrap.getBoundingClientRect();
+      st.goalTilt = ((e.clientX - r.left) / r.width - 0.5) * 0.34;
+      if (e.pointerType === "mouse") pointAt(e);
+    });
+    wrap.addEventListener("pointerleave", () => { st.over = false; st.goalTilt = 0; hideBubble(WATER); });
+    wrap.addEventListener("click", e => {
+      st.lv += 1.1; st.splash = 1;
+      if (e.pointerType && e.pointerType !== "mouse") { if (bubble.classList.contains("is-on") && bubbleFor === WATER) hideBubble(WATER); else pointAt(e); }
+    });
+
+    let last = 0;
+    whileVisible(wrap, now => {
+      draw();
+      const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
+      last = now;
+      const t = now / 1000;
+      if (st.fillAt !== null) st.goal = (st.over ? HIGH : REST) * easeOutCubic(clamp01((t - st.fillAt) / 1.8));
+      st.lv += (28 * (st.goal - st.level) - 3.2 * st.lv) * dt;
+      st.level += st.lv * dt;
+      st.tv += (36 * (st.goalTilt - st.tilt) - 3 * st.tv) * dt;
+      st.tilt += st.tv * dt;
+      st.splash *= Math.exp(-dt * 1.4);
+      u.uTime.value = t;
+      u.uLevel.value = st.level;
+      u.uTilt.value = st.tilt;
+      u.uSplash.value = st.splash;
+      renderer.render(scene, cam);
+      wrap.classList.add("has-3d");
+    }, () => { st.fillAt = performance.now() / 1000; });
+  }
+
+  // ---- the ? blocks ----
+  const BLOCK_VERT = `
+    varying vec2 vUv; varying vec3 vN; varying vec3 vV; varying vec3 vWorld; varying vec3 vLocal;
+    void main() {
+      vUv = uv; vLocal = position;
+      vec4 mv = modelViewMatrix * vec4(position, 1.0);
+      vV = -mv.xyz;
+      vN = normalize(normalMatrix * normal);
+      vWorld = (modelMatrix * vec4(position, 1.0)).xyz;
+      gl_Position = projectionMatrix * mv;
+    }`;
+  const BLOCK_FRAG = `
+    uniform sampler2D tFace; uniform float uTime; uniform int uMode; uniform float uHover;
+    varying vec2 vUv; varying vec3 vN; varying vec3 vV; varying vec3 vWorld; varying vec3 vLocal;
+    vec3 rainbow(float h) { return clamp(abs(fract(h + vec3(0.0, 2.0 / 3.0, 1.0 / 3.0)) * 6.0 - 3.0) - 1.0, 0.0, 1.0); }
+    float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    void main() {
+      vec3 N = normalize(vN), V = normalize(vV);
+      if (!gl_FrontFacing) N = -N;
+      vec3 L = normalize(vec3(-0.45, 0.75, 0.55));
+      float shade = 0.5 + 0.62 * max(dot(N, L), 0.0);
+      float spec = pow(max(dot(reflect(-L, N), V), 0.0), 40.0);
+      float fres = pow(1.0 - max(dot(N, V), 0.0), 2.0);
+      vec2 uv = vUv;
+      if (uMode == 4) {
+        // Glitch: thin bands that jump sideways
+        float g = hash(vec2(floor(uv.y * 38.0), floor(uTime * 12.0)));
+        uv.x += (g - 0.5) * step(0.7, g) * 0.14 + sin(uv.y * 44.0 + uTime * 9.0) * 0.004;
+      }
+      vec4 tex = texture2D(tFace, uv);
+      vec3 col = tex.rgb * shade;
+      float lum = dot(tex.rgb, vec3(0.299, 0.587, 0.114));
+      float mark = smoothstep(0.8, 0.95, min(tex.r, min(tex.g, tex.b)));
+      float alpha = 1.0;
+      if (uMode == 0) {
+        // Hidden block, as the Mario Maker 3D World editor previews it: one colour, edges stronger, lines that climb
+        float lines = step(0.55, fract(vWorld.y * 6.0 - uTime * 0.5)) * 0.07;
+        col = vec3(0.38, 0.78, 1.0);
+        alpha = clamp((0.16 + fres * 0.75 + lines + mark * 0.3) * (0.9 + 0.1 * sin(uTime * 3.0)), 0.0, 0.9);
+      } else if (uMode == 1) {
+        // Foil: a cold shine sweeping across
+        col += vec3(0.45, 0.65, 1.0) * smoothstep(0.55, 1.0, sin((uv.x + uv.y) * 8.0 - uTime * 2.0)) * 0.4;
+        col = col * 1.04 + spec * 0.35;
+      } else if (uMode == 2) {
+        // Holographic: rainbow interference bands that move with the angle
+        float h = fract(uv.x * 3.0 + uv.y * 2.0 + uTime * 0.35 + (N.x + N.y) * 0.6);
+        col = mix(col, col * 0.55 + rainbow(h) * 0.95, 0.5) + spec * 0.35;
+      } else if (uMode == 3) {
+        // Polychrome: a soft rainbow over everything
+        float h = fract(uv.x * 0.7 + uv.y * 0.3 + uTime * 0.15);
+        col = mix(col, rainbow(h), 0.4) + rainbow(h) * 0.08 + spec * 0.35;
+      } else if (uMode == 4) {
+        // Glitch: RGB split and stray blocks of colour
+        float o = 0.006 + 0.012 * step(0.9, hash(vec2(floor(uTime * 15.0), 3.0)));
+        col = vec3(texture2D(tFace, uv + vec2(o, 0.0)).r * shade, col.g, texture2D(tFace, uv - vec2(o, 0.0)).b * shade);
+        if (hash(vec2(floor(uv.x * 28.0), floor(uv.y * 38.0 + floor(uTime * 20.0)))) > 0.95) col += vec3(0.5, 0.1, 0.6);
+        col += spec * 0.35;
+      } else if (uMode == 5) {
+        // Metal: chrome reflecting a studio, the art left as relief
+        vec3 R = reflect(-V, N);
+        float env = 0.46 + 0.5 * smoothstep(0.0, 0.8, R.y) - 0.14 * smoothstep(0.0, 0.6, -R.y);
+        env += pow(max(dot(R, normalize(vec3(-0.55, 0.45, 0.7))), 0.0), 10.0) * 0.95;
+        env += pow(max(dot(R, normalize(vec3(0.7, 0.15, 0.7))), 0.0), 18.0) * 0.6;
+        env += (1.0 - smoothstep(0.0, 0.05, abs(R.y - 0.12))) * 0.35;
+        col = (vec3(env) * mix(0.5, 1.12, smoothstep(0.35, 0.95, lum)) + spec * 1.3) * vec3(0.93, 0.96, 1.0);
+      } else {
+        // Liquid glass: indigo glass half full, the ? swimming inside
+        vec3 indigo = vec3(0.38, 0.3, 0.82);
+        vec2 ruv = vUv + N.xy * 0.05 + vec2(sin(uTime * 1.3 + vUv.y * 6.0), cos(uTime * 1.1 + vUv.x * 5.0)) * 0.012;
+        vec4 inner = texture2D(tFace, ruv);
+        float q = smoothstep(0.8, 0.95, min(inner.r, min(inner.g, inner.b)));
+        float level = 0.08 * sin(vLocal.x * 5.0 + uTime * 2.2) + 0.04 * sin(vLocal.z * 7.0 - uTime * 1.7);
+        float liquid = 1.0 - smoothstep(level - 0.02, level + 0.02, vLocal.y);
+        col = indigo * (0.5 + 0.35 * liquid) + indigo * fres * 1.3 + vec3(0.92, 0.88, 1.0) * q * 0.8 + spec * 1.4;
+        alpha = clamp(0.5 + 0.25 * liquid + fres * 0.4 + q * 0.3 + spec, 0.0, 0.96);
+      }
+      gl_FragColor = vec4(col + uHover * 0.06, alpha);
+    }`;
+
+  function faceTexture(THREE) {
+    const S = 256, c = document.createElement("canvas");
+    c.width = c.height = S;
+    const g = c.getContext("2d");
+    g.fillStyle = "#9a5200";
+    g.fillRect(0, 0, S, S);
+    const grad = g.createLinearGradient(0, 0, S, S);
+    grad.addColorStop(0, "#ffd84a");
+    grad.addColorStop(1, "#f2a20c");
+    g.fillStyle = grad;
+    g.fillRect(14, 14, S - 28, S - 28);
+    g.fillStyle = "rgba(255,255,255,.35)";
+    g.fillRect(14, 14, S - 28, 8); g.fillRect(14, 14, 8, S - 28);
+    g.fillStyle = "rgba(120,60,0,.35)";
+    g.fillRect(14, S - 22, S - 28, 8); g.fillRect(S - 22, 14, 8, S - 28);
+    for (const [x, y] of [[42, 42], [S - 42, 42], [42, S - 42], [S - 42, S - 42]]) {
+      g.fillStyle = "#7a3f00"; g.beginPath(); g.arc(x + 1.5, y + 2, 9, 0, 7); g.fill();
+      g.fillStyle = "#ffe9a8"; g.beginPath(); g.arc(x - 1, y - 1, 6.5, 0, 7); g.fill();
+    }
+    g.font = '900 188px Anybody, "Hanken Grotesk", sans-serif';
+    g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "#8a4600"; g.fillText("?", S / 2 + 8, S / 2 + 18);
+    g.fillStyle = "#fff"; g.fillText("?", S / 2, S / 2 + 10);
+    const t = new THREE.CanvasTexture(c);
+    t.anisotropy = 4;
+    return t;
+  }
+
+  async function buildBlocks() {
+    const THREE = await import("three");
+    const { RoundedBoxGeometry } = await import("three/addons/geometries/RoundedBoxGeometry.js");
+    try { await document.fonts.load('900 100px "Anybody"'); } catch (e) {}
+    const canvas = section.querySelector(".sc-blocks");
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "low-power" });
+    renderer.setClearColor(0x000000, 0);
+    const scene = new THREE.Scene();
+    // a long lens from far away: the strip is very wide, and a wide angle would stretch the end blocks
+    const cam = new THREE.PerspectiveCamera(9, 2, 1, 200);
+    cam.position.set(0, 4, 45);
+    cam.lookAt(0, 0, 0);
+    const face = faceTexture(THREE);
+    const geo = new RoundedBoxGeometry(1, 1, 1, 5, 0.09);
+    const time = { value: 0 };
+    const blocks = BLOCKS.map((b, i) => {
+      const see = b.id === "hidden" || b.id === "glass";
+      const mat = new THREE.ShaderMaterial({
+        vertexShader: BLOCK_VERT, fragmentShader: BLOCK_FRAG, transparent: see, depthWrite: !see,
+        side: b.id === "hidden" ? THREE.DoubleSide : THREE.FrontSide,
+        uniforms: { tFace: { value: face }, uTime: time, uMode: { value: i }, uHover: { value: 0 } },
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      const pivot = new THREE.Group();
+      pivot.add(mesh);
+      scene.add(pivot);
+      return { b, mesh, pivot, mat, rot: i * 0.7, spin: 0.4 + (i % 3) * 0.13, phase: i * 0.9, hover: 0, bump: -9, spinAt: -9, home: new THREE.Vector3(), s: 1 };
+    });
+
+    const SPACING = 1.55;
+    let width = 0;
+    function fit() {
+      const w = canvas.clientWidth;
+      if (w === width || !w) return;
+      width = w;
+      const cols = w < 640 ? 4 : 7, rows = Math.ceil(blocks.length / cols);
+      const h = Math.round(Math.min((w / cols) * 1.3, 290) * rows + 30);
+      canvas.style.height = h + "px";
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setSize(w, h, false);
+      cam.aspect = w / h;
+      cam.updateProjectionMatrix();
+      const viewH = 2 * cam.position.length() * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2)), viewW = viewH * cam.aspect;
+      const s = Math.min(viewW / (cols * SPACING), viewH / (rows * SPACING * 1.08));
+      blocks.forEach((k, i) => {
+        const r = Math.floor(i / cols), c = i % cols, inRow = Math.min(cols, blocks.length - r * cols);
+        k.home.set((c - (inRow - 1) / 2) * SPACING * s, ((rows - 1) / 2 - r) * SPACING * s * 1.05 - 0.15 * s, 0);
+        k.s = s;
+        k.pivot.scale.setScalar(s);
+      });
+    }
+
+    // pointing: a mouse shows the bubble on hover, a finger on tap; a click or tap also hits the block
+    const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+    let hot = null;
+    const pick = e => {
+      const r = canvas.getBoundingClientRect();
+      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, cam);
+      const hit = ray.intersectObjects(blocks.map(k => k.mesh), false)[0];
+      return hit ? blocks.find(k => k.mesh === hit.object) : null;
+    };
+    const setHot = k => {
+      if (k === hot) return;
+      hot = k;
+      if (k) k.bump = performance.now() / 1000;
+      else hideBubble();
+      canvas.classList.toggle("is-pointing", !!k);
+    };
+    canvas.addEventListener("pointermove", e => { if (e.pointerType === "mouse") setHot(pick(e)); });
+    canvas.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") setHot(null); });
+    let down = null;
+    canvas.addEventListener("pointerdown", e => { down = { x: e.clientX, y: e.clientY }; });
+    canvas.addEventListener("pointerup", e => {
+      if (!down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 8) return;
+      const k = pick(e), now = performance.now() / 1000;
+      if (k) { k.spinAt = now; k.bump = now; }
+      if (e.pointerType !== "mouse") setHot(k === hot ? null : k);
+    });
+    document.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse" && hot && !canvas.contains(e.target)) setHot(null); });
+
+    const top = new THREE.Vector3();
+    let seenAt = null, last = 0;
+    whileVisible(stage, now => {
+      fit();
+      const t = now / 1000, dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
+      last = now;
+      time.value = t;
+      blocks.forEach((k, i) => {
+        const on = k === hot;
+        k.hover += ((on ? 1 : 0) - k.hover) * Math.min(1, dt * 10);
+        k.mat.uniforms.uHover.value = k.hover;
+        // they drop in one after another, then bob; the one pointed at gets hit from below
+        const u = seenAt === null ? -1 : (t - seenAt - i * 0.085) / 0.75;
+        k.pivot.visible = u > 0;
+        const drop = (1 - easeOutBack(clamp01(u))) * 3.2;
+        const bu = t - k.bump, hit = bu >= 0 && bu < 0.3 ? Math.sin((Math.PI * bu) / 0.3) * 0.3 : 0;
+        const bob = Math.sin(t * 1.4 + k.phase) * 0.06;
+        k.pivot.position.set(k.home.x, k.home.y + (drop + hit + bob) * k.s, 0);
+        // they turn on their own; the one pointed at turns its ? to the front
+        if (on) { const q = Math.PI / 2; k.rot += (Math.round(k.rot / q) * q - k.rot) * Math.min(1, dt * 8); }
+        else k.rot += k.spin * dt;
+        const spin = Math.PI * 2 * (1 - easeOutCubic(clamp01((t - k.spinAt) / 0.9)));
+        k.mesh.rotation.set(0, k.rot + (t - k.spinAt < 0.9 ? spin : 0), 0);
+        k.pivot.rotation.set(0.1 + Math.sin(t * 0.9 + k.phase) * 0.06, 0, Math.sin(t * 0.7 + k.phase) * 0.05);
+      });
+      renderer.render(scene, cam);
+      if (hot) {
+        top.set(hot.pivot.position.x, hot.pivot.position.y + 0.82 * hot.s, 0).project(cam);
+        showBubble(hot.b, ((top.x + 1) / 2) * canvas.clientWidth, ((1 - top.y) / 2) * canvas.clientHeight);
+      }
+    }, () => { seenAt = performance.now() / 1000; });
+  }
+
+  const near = (el, build, fail) => {
+    const io = new IntersectionObserver(es => {
+      if (!es.some(e => e.isIntersecting)) return;
+      io.disconnect();
+      build().catch(err => { console.warn(err); fail(); });
+    }, { rootMargin: "600px 0px" });
+    io.observe(el);
+  };
+  near(section.querySelector(".sc-title"), buildWater, () => section.querySelector(".sc-title").classList.remove("has-3d"));
+  near(stage, buildBlocks, () => { section.classList.add("no-3d"); list.classList.remove("sr-only"); });
 </script>
 </body>
 </html>
